@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>esca2.xyz - 발로란트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700;900&family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 발로란트 오피셜 컬러 팔레트 */
+            --val-red: #ff4655;
+            --val-dark: #0f1923;
+            --val-gray: #ece8e1;
+            --val-light-gray: #768079;
+            --val-border: #383e3a;
+            --val-hover-bg: rgba(255, 70, 85, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        
+        body { 
+            background-color: var(--val-dark); 
+            font-family: 'Noto Sans KR', sans-serif; 
+            color: var(--val-gray); 
+            display: flex; justify-content: center; align-items: flex-start; 
+            min-height: 100vh; padding: 20px; 
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* 메인 컨테이너 (발로란트 특유의 우측 상단/좌측 하단 컷팅) */
+        .tactical-board { 
+            width: 100%; max-width: 900px; 
+            background: rgba(15, 25, 35, 0.95); 
+            border: 1px solid var(--val-border); 
+            padding: 35px 40px; position: relative; z-index: 10; 
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); 
+            display: flex; flex-direction: column; align-items: center; 
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+        }
+
+        /* 상단 레드 포인트 라인 */
+        .tactical-board::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--val-red); }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--val-border); padding-bottom: 15px; width: 100%; }
+        .header-left h1 { font-family: 'Oswald', sans-serif; font-size: 40px; letter-spacing: 2px; color: var(--val-gray); font-weight: 900; text-transform: uppercase; margin-bottom: -5px; }
+        .header-left h1 span { color: var(--val-red); }
+        .header-left p { font-family: 'Noto Sans KR', sans-serif; color: var(--val-light-gray); letter-spacing: 3px; font-size: 13px; font-weight: 700; }
+        
+        .header-right { font-family: 'Oswald', sans-serif; font-size: 45px; color: var(--val-red); font-weight: 900; line-height: 1; }
+
+        /* 🗺️ 맵 섹션 (전체 맵 나열) */
+        .map-section { width: 100%; border: 1px solid var(--val-border); padding: 25px; margin-bottom: 30px; background: rgba(0,0,0,0.3); }
+        .section-title { font-size: 18px; font-weight: 900; color: var(--val-gray); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--val-red); padding-left: 10px; }
+        
+        /* 맵 그리드 */
+        .map-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
+        .map-btn { 
+            padding: 12px 5px; border: 1px solid var(--val-border); background: #1f2326; 
+            color: var(--val-gray); font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; text-align: center; 
+            clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+        }
+        .map-btn:hover { background: var(--val-hover-bg); border-color: var(--val-red); }
+        .map-btn.excluded { border-color: #222; background: #111; color: #444; text-decoration: line-through; }
+
+        .ready-status { text-align: center; border-top: 1px solid var(--val-border); padding-top: 20px; margin-bottom: 20px; color: var(--val-light-gray); font-family: 'Oswald', sans-serif; font-size: 22px; letter-spacing: 2px; }
+        .ready-status.selected { color: var(--val-red); font-family: 'Noto Sans KR', sans-serif; font-size: 28px; font-weight: 900; text-shadow: 0 0 15px rgba(255, 70, 85, 0.4); }
+
+        .action-row { display: flex; gap: 15px; width: 100%; }
+        .action-btn { 
+            flex: 1; padding: 15px 0; border: 1px solid var(--val-gray); 
+            font-family: 'Noto Sans KR', sans-serif; font-weight: 900; font-size: 16px; 
+            cursor: pointer; transition: 0.2s; text-align: center; background: transparent; color: var(--val-gray); 
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+        }
+        .action-btn:hover { background: var(--val-gray); color: var(--val-dark); }
+        .btn-main { background: var(--val-red); color: #fff; border-color: var(--val-red); }
+        .btn-main:hover { background: transparent; color: var(--val-red); border-color: var(--val-red); box-shadow: inset 0 0 10px rgba(255, 70, 85, 0.3); }
+
+        /* 👥 팀 섹션 (발로란트 5v5) */
+        .team-section { width: 100%; border: 1px solid var(--val-border); padding: 25px; background: rgba(0,0,0,0.3); }
+
+        .team-header { display: flex; justify-content: space-between; padding: 0 60px; margin-bottom: 15px; }
+        .team-title { font-family: 'Oswald', sans-serif; font-size: 22px; letter-spacing: 4px; font-weight: 900; }
+        .team-title.atk { color: var(--val-red); }
+        .team-title.def { color: #32a8a0; /* 발로란트 수비팀 민트색 */ }
+
+        .lineup-grid { margin-bottom: 25px; }
+        .lane-row { display: flex; align-items: center; justify-content: space-between; background: #18222c; border: 1px solid var(--val-border); margin-bottom: 10px; padding: 10px 20px; transition: 0.1s; position: relative; }
+        .flash { background: var(--val-hover-bg); border-color: var(--val-red); }
+        
+        .tier-label { font-size: 14px; font-weight: 900; color: var(--val-gray); width: 60px; text-align: center; }
+
+        input { 
+            width: 38%; height: 42px; background: #111; border: 1px solid #333; 
+            color: var(--val-gray); font-size: 16px; font-weight: 700; text-align: center; outline: none; transition: 0.3s; 
+            clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+        }
+        input:focus { border-color: var(--val-red); background: #1f2326; }
+        
+        /* 🔴 발로란트 고정 버튼 (V 아이콘 대체) */
+        .lock-btn-val { 
+            width: 45px; height: 35px; cursor: pointer; flex-shrink: 0; 
+            background: #111; border: 1px solid #444; color: #666;
+            font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 900;
+            transition: 0.3s ease; display: flex; align-items: center; justify-content: center;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+        }
+        .lock-btn-val:hover { border-color: var(--val-red); color: var(--val-red); }
+        
+        /* 고정 활성화 상태 (발로란트 레드) */
+        .lock-btn-val.active { 
+            background: var(--val-red); color: #fff; 
+            border-color: var(--val-red); box-shadow: 0 0 15px rgba(255, 70, 85, 0.5); 
+            transform: scale(1.1); 
+        }
+
+        .lane-row.locked-row { border-color: var(--val-red); background: rgba(255, 70, 85, 0.05); }
+        .lane-row.locked-row .player-input { color: #555; border-color: #222; pointer-events: none; }
+
+        /* 뒤로가기 버튼 */
+        .home-btn-text { 
+            background: transparent; color: var(--val-light-gray); border: none; cursor: pointer; 
+            font-weight: 700; margin-top: 35px; font-size: 16px; text-decoration: underline; 
+            transition: 0.2s; align-self: center; text-underline-offset: 4px; letter-spacing: 1px;
+        }
+        .home-btn-text:hover { color: var(--val-red); }
+
+        /* 📱 모바일 대응 */
+        @media (max-width: 768px) {
+            .tactical-board { padding: 25px 15px; clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px)); }
+            .header-left h1 { font-size: 30px; }
+            .map-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            .team-header { padding: 0 10px; }
+            .team-title { font-size: 18px; }
+            input { width: 33%; font-size: 14px; clip-path: none; border-radius: 4px; }
+            .action-row { gap: 8px; flex-direction: column; }
+            .action-btn { font-size: 14px; padding: 12px; clip-path: none; border-radius: 4px; }
+            .tier-label { font-size: 12px; width: 45px; }
+            .lock-btn-val { width: 40px; font-size: 14px; clip-path: none; border-radius: 4px; }
+            .lane-row { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="tactical-board">
+    <div class="header">
+        <div class="header-left">
+            <h1>Valorant <span>Voldemort</span></h1>
+            <p>팀 & 맵 랜덤 생성기</p>
+        </div>
+        <div class="header-right">
+            V
+        </div>
+    </div>
+
+    <div class="map-section">
+        <div class="section-title">전장 (MAPS) <span style="font-size:12px; color:#768079; font-weight:500;">클릭하여 제외</span></div>
+        
+        <div class="map-grid" id="mapGrid">
+            </div>
+
+        <div class="ready-status" id="mapReadyStatus">대기 중</div>
+        
+        <div class="action-row">
+            <button class="action-btn" onclick="resetMaps()">초기화</button>
+            <button class="action-btn btn-main" onclick="rollMap()">전장 추첨</button>
+            <button class="action-btn" onclick="copyMapData()">결과 복사</button>
+        </div>
+    </div>
+
+    <div class="team-section">
+        <div class="team-header">
+            <div class="team-title atk">공격팀</div>
+            <div class="team-title def">수비팀</div>
+        </div>
+
+        <div class="lineup-grid" id="lineupGrid">
+            </div>
+
+        <div class="action-row">
+            <button class="action-btn" onclick="resetTeam()">팀 초기화</button>
+            <button class="action-btn btn-main" onclick="shuffleTeam()">라인업 섞기</button>
+            <button class="action-btn" onclick="copyTeamData()">라인업 복사</button>
+        </div>
+    </div>
+
+    <button class="home-btn-text" onclick="location.href='team.html'">← 로비로 돌아가기</button>
+</div>
+
+<script>
+    // 발로란트 맵 (모든 맵 플랫하게 나열)
+    const valMaps = [
+        "어센트", "바인드", "헤이븐", "스플릿", "아이스박스", 
+        "브리즈", "프랙처", "펄", "로터스", "선셋", "어비스","코로도"
+    ];
+
+    // 발로란트 5v5 역할군
+    const positionsData = ["타격대", "척후대", "전략가", "감시자", "플렉스"];
+
+    function init() {
+        renderMapUI();
+        renderLanes();
+    }
+
+    /* ====== 맵 시스템 ====== */
+    function renderMapUI() {
+        const gridContainer = document.getElementById('mapGrid');
+        gridContainer.innerHTML = '';
+
+        valMaps.forEach(mapName => {
+            const mapBtn = document.createElement('button');
+            mapBtn.className = 'map-btn';
+            mapBtn.innerText = mapName;
+            mapBtn.setAttribute('data-map', mapName);
+            mapBtn.onclick = function() { toggleSingleMap(this); };
+            gridContainer.appendChild(mapBtn);
+        });
+    }
+
+    // 개별 맵 끄기/켜기 (취소선)
+    function toggleSingleMap(btn) {
+        btn.classList.toggle('excluded');
+    }
+
+    // 맵 뽑기
+    function rollMap() {
+        // 취소선 안 그어진(제외되지 않은) 버튼만 수집
+        const activeMapBtns = document.querySelectorAll('.map-btn:not(.excluded)');
+        const mapEl = document.getElementById('mapReadyStatus');
+
+        if (activeMapBtns.length === 0) {
+            mapEl.innerText = "❌ 활성화된 맵이 없습니다!";
+            mapEl.style.color = "var(--val-red)";
+            mapEl.classList.remove('selected');
+            return;
+        }
+
+        const availableMaps = Array.from(activeMapBtns).map(btn => btn.getAttribute('data-map'));
+        
+        let rollCount = 0;
+        let rollInterval = setInterval(() => {
+            mapEl.innerText = availableMaps[Math.floor(Math.random() * availableMaps.length)];
+            mapEl.classList.remove('selected');
+            mapEl.style.color = "var(--val-light-gray)";
+            rollCount++;
+            if(rollCount > 12) {
+                clearInterval(rollInterval);
+                mapEl.classList.add('selected');
+            }
+        }, 50);
+    }
+
+    function resetMaps() {
+        document.querySelectorAll('.map-btn.excluded').forEach(el => el.classList.remove('excluded'));
+        
+        const mapEl = document.getElementById('mapReadyStatus');
+        mapEl.innerText = 'STANDBY';
+        mapEl.classList.remove('selected');
+        mapEl.style.color = "var(--val-light-gray)";
+    }
+
+    function copyMapData() {
+        const map = document.getElementById('mapReadyStatus').innerText;
+        if(map === 'STANDBY' || map.includes('❌')) {
+            alert("먼저 전장 추첨을 돌려주세요!");
+            return;
+        }
+        navigator.clipboard.writeText(`▶ 결정된 전장: [ ${map} ]`);
+        alert(`전장(${map})이 복사되었습니다.`);
+    }
+
+    /* ====== 팀 시스템 ====== */
+    function renderLanes() {
+        const lineupGrid = document.getElementById('lineupGrid');
+        lineupGrid.innerHTML = '';
+
+        for (let i = 0; i < 5; i++) {
+            const laneRow = document.createElement('div');
+            laneRow.className = 'lane-row';
+            laneRow.innerHTML = `
+                <div class="tier-label">${positionsData[i]}</div>
+                <input type="text" class="player-input" id="t${i}a" placeholder="공격 ${i+1}">
+                
+                <button class="lock-btn-val" onclick="toggleLock(this)" title="클릭 시 자리 고정">V</button>
+                
+                <input type="text" class="player-input" id="t${i}b" placeholder="수비 ${i+1}">
+            `;
+            lineupGrid.appendChild(laneRow);
+        }
+    }
+
+    function toggleLock(btn) {
+        btn.classList.toggle('active');
+        btn.parentElement.classList.toggle('locked-row');
+    }
+
+    function shuffleTeam() {
+        const rows = document.querySelectorAll('.lane-row');
+        rows.forEach((row, i) => {
+            const lockBtn = row.querySelector('.lock-btn-val');
+            if (!lockBtn.classList.contains('active')) {
+                const aInput = document.getElementById(`t${i}a`);
+                const bInput = document.getElementById(`t${i}b`);
+                if (Math.random() > 0.5) {
+                    const temp = aInput.value;
+                    aInput.value = bInput.value;
+                    bInput.value = temp;
+                }
+            }
+            // 발로란트 레드 번쩍임 효과
+            row.classList.add('flash');
+            setTimeout(() => row.classList.remove('flash'), 150);
+        });
+    }
+
+    function resetTeam() {
+        document.querySelectorAll('.player-input').forEach(input => input.value = '');
+        document.querySelectorAll('.lock-btn-val').forEach(btn => {
+            btn.classList.remove('active');
+            btn.parentElement.classList.remove('locked-row');
+        });
+    }
+
+    function copyTeamData() {
+        let result = `[ VALORANT 매치업 ]\n\n[ ATTACKERS (공격) ]\n`;
+        for(let i=0; i < 5; i++) {
+            result += `${positionsData[i]}: ${document.getElementById(`t${i}a`).value || '-'}\n`;
+        }
+        result += "\n[ DEFENDERS (수비) ]\n";
+        for(let i=0; i < 5; i++) {
+            result += `${positionsData[i]}: ${document.getElementById(`t${i}b`).value || '-'}\n`;
+        }
+        navigator.clipboard.writeText(result);
+        alert("팀 라인업이 복사되었습니다.");
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>

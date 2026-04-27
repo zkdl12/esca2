@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>esca2.xyz - 메뉴</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700;900&family=Teko:wght@400;600&family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00e5ff;
+            --dark-bg: #03050a;
+            --ui-gray: #1a1f2b;
+            /* 게임별 시그니처 컬러 */
+            --c-pubg: #f2a900; 
+            --c-ow: #4a90e2; 
+            --c-val: #ff4655; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+
+        body {
+            background-color: var(--dark-bg);
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* 전술 레이더 느낌 배경 */
+            background-image: 
+                radial-gradient(circle at center, rgba(0, 229, 255, 0.05) 0%, transparent 60%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        /* 스캔라인 효과 */
+        body::after {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            pointer-events: none; z-index: 99; opacity: 0.4;
+        }
+
+        /* 🔫 하단 배경 거대 워터마크 */
+        .bg-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Oswald', sans-serif;
+            font-size: 15vw;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.02);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 1;
+            user-select: none;
+        }
+
+        .main-frame {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .title-section {
+            margin-bottom: 50px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* 데코레이션 라인 */
+        .title-section::before {
+            content: ''; position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 4px; background: var(--neon-blue);
+        }
+
+        .main-logo {
+            font-family: 'Oswald', sans-serif;
+            font-size: 55px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 12px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+            text-transform: uppercase;
+        }
+
+        .sub-logo {
+            font-family: 'Teko', sans-serif;
+            font-size: 20px;
+            color: var(--neon-blue);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        /* 🎮 택티컬 게임 선택 메뉴 */
+        .game-menu-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* 게임 카드 공통 스타일 */
+        .game-card {
+            position: relative;
+            flex: 1;
+            height: 380px;
+            text-decoration: none;
+            background: rgba(10, 14, 23, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(5px);
+            /* 발로란트식 컷팅 디자인 */
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+            overflow: hidden;
+        }
+
+        /* 카드 내부 배경 넘버링 (01, 02, 03) */
+        .game-card::before {
+            content: attr(data-num);
+            position: absolute;
+            top: -20px;
+            right: 10px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 120px;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 0;
+            transition: 0.4s;
+        }
+
+        /* 카드별 고유 컬러 바인딩 */
+        .game-card.pubg { --theme-color: var(--c-pubg); }
+        .game-card.ow { --theme-color: var(--c-ow); }
+        .game-card.val { --theme-color: var(--c-val); }
+
+        /* 하단 컬러 바 */
+        .game-card::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 4px;
+            background: var(--theme-color);
+            transition: 0.4s;
+            opacity: 0.5;
+        }
+
+        /* 호버 이펙트 */
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--theme-color);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255,255,255,0.02);
+            background: rgba(20, 25, 35, 0.9);
+        }
+        
+        .game-card:hover::before { color: rgba(255, 255, 255, 0.1); transform: scale(1.1) translateX(-10px); }
+        .game-card:hover::after { height: 100%; opacity: 0.05; }
+        .game-card:hover .game-name { color: var(--theme-color); text-shadow: 0 0 15px var(--theme-color); }
+        .game-card:hover .status-dot { background: var(--theme-color); box-shadow: 0 0 10px var(--theme-color); }
+
+        .card-content { position: relative; z-index: 2; }
+
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: auto; }
+        .status-dot { width: 8px; height: 8px; background: #555; border-radius: 50%; transition: 0.3s; }
+        .sys-text { font-family: 'Teko', sans-serif; font-size: 16px; color: #666; letter-spacing: 2px; }
+
+        .game-info { margin-top: auto; }
+        .game-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 38px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            transition: 0.3s;
+        }
+        .game-desc {
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            color: #888;
+            letter-spacing: 1px;
+            line-height: 1.5;
+        }
+
+        /* 🔙 뒤로가기 버튼 */
+        .back-to-main {
+            margin-top: 60px;
+            background: transparent;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            color: var(--neon-blue);
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 12px 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            z-index: 20;
+        }
+
+        .back-to-main:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+        }
+
+        /* 📱 모바일 대응 */
+        @media (max-width: 768px) {
+            body { overflow-y: auto; align-items: flex-start; }
+            .bg-watermark { font-size: 20vw; top: 20%; transform: translate(-50%, 0); }
+            .main-frame { padding: 40px 20px; }
+            .title-section { margin-bottom: 40px; }
+            .main-logo { font-size: 40px; }
+            .game-menu-container { flex-direction: column; align-items: center; gap: 20px; }
+            .game-card { width: 100%; height: 220px; padding: 25px 20px; }
+            .game-name { font-size: 30px; }
+            .game-card::before { font-size: 80px; top: -10px; right: 0; }
+            .back-to-main { margin-top: 40px; width: 100%; max-width: 300px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-watermark">OPERATION</div>
+
+    <div class="main-frame">
+        
+        <div class="title-section">
+            <h1 class="main-logo">작전 선택</h1>
+            <p class="sub-logo">시스템 연결 // 전장을 선택하라</p>
+        </div>
+
+        <nav class="game-menu-container">
+            <a href="pupg.html" class="game-card pubg" data-num="01">
+                <div class="card-content game-header">
+                    <div class="status-dot"></div>
+                    <div class="sys-text">SYS.REQ // PBG</div>
+                </div>
+                <div class="card-content game-info">
+                    <div class="game-name">PUBG</div>
+                    <div class="game-desc">배틀그라운드 스쿼드 배정<br>및 하드코어 랜덤 룰렛</div>
+                </div>
+            </a>
+
+            <a href="ow.html" class="game-card ow" data-num="02">
+                <div class="card-content game-header">
+                    <div class="status-dot"></div>
+                    <div class="sys-text">SYS.REQ // OW2</div>
+                </div>
+                <div class="card-content game-info">
+                    <div class="game-name">OVERWATCH</div>
+                    <div class="game-desc">오버워치 팀 매칭 시스템<br>및 포지션/전장 추첨</div>
+                </div>
+            </a>
+
+            <a href="val.html" class="game-card val" data-num="03">
+                <div class="card-content game-header">
+                    <div class="status-dot"></div>
+                    <div class="sys-text">SYS.REQ // VAL</div>
+                </div>
+                <div class="card-content game-info">
+                    <div class="game-name">VALORANT</div>
+                    <div class="game-desc">발로란트 5v5 팀 셔플<br>및 오피셜 맵 밴픽 모듈</div>
+                </div>
+            </a>
+        </nav>
+
+        <button class="back-to-main" onclick="location.href='main.html'">메인으로 돌아가기</button>
+
+    </div>
+
+</body>
+</html>

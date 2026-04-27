@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>esca2.xyz - 기록 보관소</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700;900&family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00e5ff;
+            --neon-red: #ff3366;
+            --dark-bg: #03050a;
+            --ui-gray: #1a1f2b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+
+        body {
+            background-color: var(--dark-bg);
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at center, rgba(0, 229, 255, 0.05) 0%, transparent 60%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        body::after {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            pointer-events: none; z-index: 99; opacity: 0.3;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 900px;
+            padding: 60px 20px;
+        }
+
+        /* 🔝 헤더 영역 */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            border-left: 4px solid var(--neon-blue);
+            padding-left: 20px;
+            display: inline-block;
+        }
+        .header h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 50px;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+        }
+        .header p {
+            color: var(--neon-blue);
+            font-weight: 700;
+            letter-spacing: 5px;
+            font-size: 14px;
+        }
+
+        /* 🪪 오퍼레이터 프로필 카드 */
+        .dossier-card {
+            background: rgba(10, 15, 25, 0.7);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            padding: 30px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: 180px 1fr; /* 사진 | 정보 */
+            gap: 40px;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.05);
+            position: relative;
+            /* 테두리 택티컬 컷팅 */
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+        }
+        
+        .dossier-card::after {
+            content: 'CONFIDENTIAL';
+            position: absolute;
+            top: 20px; right: 20px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 12px; font-weight: 900;
+            color: rgba(255, 51, 102, 0.4);
+            border: 2px solid rgba(255, 51, 102, 0.4);
+            padding: 2px 8px;
+            transform: rotate(15deg);
+        }
+
+        /* 🖼️ 프로필 사진 (택티컬 사각형 컷팅) */
+        .dossier-photo {
+            width: 100%;
+            height: 220px;
+            /* 육각형 버리고 모서리만 사선으로 자른 직사각형 */
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            background: var(--ui-gray);
+            padding: 3px;
+            display: flex; justify-content: center; align-items: center;
+            border: 1px solid rgba(0, 229, 255, 0.5);
+        }
+        .dossier-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: top center; /* 얼굴 짤림 방지 */
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            filter: grayscale(10%) contrast(1.1);
+        }
+
+        /* 신상 정보 영역 */
+        .dossier-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .info-row {
+            display: grid;
+            grid-template-columns: 120px 1fr; /* 라벨 | 값 */
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+        }
+        .info-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            color: var(--neon-blue);
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        .info-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        .info-row.callsign .info-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+        }
+
+        /* 🎖️ 핵심 요약 */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+        .summary-item {
+            background: rgba(26, 31, 43, 0.6);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            padding: 30px;
+            text-align: center;
+            clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+        }
+        .summary-item h3 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--neon-blue);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .summary-item p {
+            font-size: 16px;
+            font-weight: 500;
+            color: #ccc;
+        }
+
+        /* ⏳ 타임라인 레거시 */
+        .timeline {
+            position: relative;
+            margin: 40px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--neon-blue), var(--neon-red), transparent);
+            transform: translateX(-50%);
+        }
+
+        .event {
+            position: relative;
+            width: 50%;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+        }
+        .event:nth-child(odd) { left: 0; text-align: right; }
+        .event:nth-child(even) { left: 50%; text-align: left; }
+
+        .event-content {
+            background: rgba(10, 15, 25, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .event:hover .event-content {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .year {
+            font-family: 'Oswald', sans-serif;
+            font-size: 24px;
+            color: var(--neon-blue);
+            margin-bottom: 5px;
+        }
+        .game-title {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .desc {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        /* 🔙 하단 네비게이션 */
+        .footer-nav {
+            text-align: center;
+            margin-top: 60px;
+            padding-bottom: 40px;
+        }
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 15px 40px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-block;
+        }
+        .back-btn:hover {
+            background: var(--neon-blue);
+            color: #000;
+        }
+
+        /* 📱 모바일 완벽 대응 (반응형) */
+        @media (max-width: 768px) {
+            .container { padding: 40px 15px; }
+            .header h1 { font-size: 35px; }
+            
+            /* 프로필 카드 세로 정렬 */
+            .dossier-card { 
+                grid-template-columns: 1fr; 
+                justify-items: center; 
+                text-align: center; 
+                gap: 20px; 
+                padding: 30px 15px;
+            }
+            .dossier-photo {
+                width: 150px;
+                height: 180px;
+            }
+            .info-row { 
+                grid-template-columns: 1fr; /* 라벨, 값 위아래로 배치 */
+                gap: 5px; 
+                border-bottom: none;
+                margin-bottom: 10px;
+            }
+            
+            /* 타임라인 모바일 최적화 (선을 왼쪽으로 밀기) */
+            .timeline::before { 
+                left: 15px; 
+                transform: none; 
+            }
+            .event { 
+                width: 100%; 
+                left: 0 !important; 
+                text-align: left !important; 
+                padding: 10px 0 20px 40px; /* 왼쪽에 선 그릴 공간 40px 확보 */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>THE LEGACY</h1>
+            <p>기록 보관소 // 에스카 김인재</p>
+        </div>
+
+        <div class="dossier-card">
+            <div class="dossier-photo">
+                <img src="https://i.namu.wiki/i/vTBmsEvj46PuVlc7DVeIcm4bg-953848AykrOCcr0M_Y-pvk4kNctxfO3ttMiOrYBId5pMIM92JBkAuEUR_NW6MVvovdQ9x_CO6cl1HKuAkUwjPzndcZDPbjlEsvGftEjQKM8MmURDbKiUHpR3o4uQ.webp" alt="ESCA" class="dossier-img">
+            </div>
+            
+            <div class="dossier-info">
+                <div class="info-row callsign">
+                    <span class="info-label">CALLSIGN</span>
+                    <span class="info-value">EscA (에스카)</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">REAL NAME</span>
+                    <span class="info-value">김인재 (Kim In-jae)</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">BORN</span>
+                    <span class="info-value">1991. 04. 22 (경상남도 울산)</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">BODY</span>
+                    <span class="info-value">173.8cm / B형</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">MBTI</span>
+                    <span class="info-value">ISFP (자유로운 영혼의 연예인)</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">MAIN ROLE</span>
+                    <span class="info-value">DPS / Rifle / Leader</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-item">
+                <p>FPS HISTORY</p>
+                <h3>5-CROWN</h3>
+                <p>대한민국 유일 5종목 석권</p>
+            </div>
+            <div class="summary-item">
+                <p>RETIRED NUMBER</p>
+                <h3>No. 2</h3>
+                <p>젠지 이스포츠 영구 결번</p>
+            </div>
+        </div>
+
+        <div class="timeline">
+            <div class="event">
+                <div class="event-content">
+                    <div class="year">2018 - 2019</div>
+                    <div class="game-title">PUBG // Gen.G GOLD</div>
+                    <p class="desc">PGI 2018 TPP 우승, PKL 우승 등 젠지의 전성기를 이끈 주역. 팀의 정신적 지주로서 No.2 영구 결번 달성.</p>
+                </div>
+            </div>
+
+            <div class="event">
+                <div class="event-content">
+                    <div class="year">2016 - 2017</div>
+                    <div class="game-title">OVERWATCH // LUNATIC-HAI</div>
+                    <p class="desc">APEX 시즌 2, 시즌 3 연속 우승의 주역. 루나틱하이의 캡틴으로서 전설적인 리더십과 딜러 역량을 증명.</p>
+                </div>
+            </div>
+
+            <div class="event">
+                <div class="event-content">
+                    <div class="year">2015</div>
+                    <div class="game-title">BLACK SQUAD // LUNATIC-HAI</div>
+                    <p class="desc">블랙스쿼드 BSN 시즌 1, 2 연속 우승. 명실상부한 국산 FPS 최강자로 군림.</p>
+                </div>
+            </div>
+
+            <div class="event">
+                <div class="event-content">
+                    <div class="year">2011 - 2012</div>
+                    <div class="game-title">SPECIAL FORCE 2 // STX Soul</div>
+                    <p class="desc">스페셜포스 2 프로리그 초대 우승 및 MVP. 프로게이머로서의 전설이 시작된 시기.</p>
+                </div>
+            </div>
+
+            <div class="event">
+                <div class="event-content">
+                    <div class="year">2010</div>
+                    <div class="game-title">SPECIAL FORCE // ITBANK</div>
+                    <p class="desc">스페셜포스 마스터리그 우승. 첫 FPS 종목 제패의 서막.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <a href="main.html" class="back-btn">← 메인 페이지로 복귀</a>
+        </div>
+    </div>
+
+</body>
+</html>

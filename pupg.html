@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>esca2.xyz - 배그</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Teko:wght@400;600&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --geng-gold: #c6a257; 
+            --geng-glow: rgba(198, 162, 87, 0.4);
+            --bg-black: #030303;
+            --panel-bg: rgba(10, 10, 10, 0.85);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-black);
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            /* 전술 스크린 같은 미세한 그리드 배경 */
+            background-image: 
+                linear-gradient(var(--geng-glow) 1px, transparent 1px),
+                linear-gradient(90deg, var(--geng-glow) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, transparent 20%, #000 90%);
+            pointer-events: none; z-index: -1;
+        }
+
+        /* 메인 택티컬 보드 */
+        .tactical-board {
+            width: 100%;
+            max-width: 900px;
+            background: var(--panel-bg);
+            border: 1px solid #222;
+            padding: 40px 50px;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            /* 사선 컷팅 디자인 */
+            clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        /* 좌상단, 우하단 골드 포인트 라인 */
+        .tactical-board::before { content: ''; position: absolute; top: 0; left: 0; width: 30%; height: 3px; background: var(--geng-gold); }
+        .tactical-board::after { content: ''; position: absolute; bottom: 0; right: 0; width: 30%; height: 3px; background: var(--geng-gold); }
+
+        .header { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 1px solid #222; padding-bottom: 20px; }
+        
+        .header-left { display: flex; flex-direction: column; }
+        .header-left h1 { font-family: 'Oswald', sans-serif; font-size: 36px; letter-spacing: 6px; color: #fff; margin-bottom: -5px; }
+        .header-left h1 span { color: var(--geng-gold); }
+        .header-left p { font-family: 'Teko', sans-serif; font-size: 18px; color: #666; letter-spacing: 4px; }
+
+        .header-right img { width: 60px; filter: drop-shadow(0 0 10px var(--geng-glow)); }
+
+        .team-header { width: 100%; display: flex; justify-content: space-between; padding: 0 80px; margin-bottom: 20px; }
+        .team-title { font-family: 'Oswald', sans-serif; color: var(--geng-gold); font-size: 20px; letter-spacing: 5px; }
+
+        /* 티어 로우 디자인 강화 */
+        .tier-row {
+            width: 100%;
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(90deg, rgba(198,162,87,0.05) 0%, transparent 20%, transparent 80%, rgba(198,162,87,0.05) 100%);
+            border-top: 1px solid #111; border-bottom: 1px solid #111;
+            margin-bottom: 10px; padding: 10px 20px;
+            transition: 0.1s;
+        }
+
+        /* 셔플 플래시 효과 */
+        .flash { background: rgba(198, 162, 87, 0.3); border-color: var(--geng-gold); }
+
+        .tier-label { font-family: 'Teko', sans-serif; font-size: 24px; color: #888; width: 40px; text-align: center; }
+
+        input {
+            width: 38%; height: 45px; background: rgba(0,0,0,0.5); border: 1px solid #222;
+            color: #fff; font-family: 'Noto Sans KR', sans-serif; font-size: 16px; font-weight: 500;
+            text-align: center; outline: none; transition: 0.3s;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+        }
+        input:focus { border-color: var(--geng-gold); box-shadow: 0 0 15px var(--geng-glow); color: var(--geng-gold); }
+
+        /* 🟡 [기능 추가] VS 대체: 젠지 마크 고정 버튼 */
+        .lock-btn-geng { 
+            width: 40px; height: 40px; cursor: pointer; flex-shrink: 0; 
+            background-color: transparent; border: none; transition: 0.3s ease; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .lock-btn-geng img { 
+            width: 100%; height: 100%; object-fit: contain;
+            filter: grayscale(100%) opacity(0.3); transition: 0.3s; 
+        }
+        .lock-btn-geng:hover img { filter: grayscale(100%) opacity(0.6); }
+        .lock-btn-geng.active img { 
+            filter: grayscale(0%) opacity(1) drop-shadow(0 0 10px var(--geng-gold)); 
+            transform: scale(1.15); 
+        }
+
+        /* 고정된 로우 스타일 */
+        .tier-row.locked-row { border-color: var(--geng-gold); background: rgba(198, 162, 87, 0.15); }
+        .tier-row.locked-row input { color: #666; border-color: #222; pointer-events: none; }
+
+        /* 하단 컨트롤 영역 */
+        .action-area { width: 100%; margin-top: 40px; display: flex; flex-direction: column; align-items: center; }
+
+        /* 🔥 셔플 카운터 */
+        .counter-display {
+            font-family: 'Teko', sans-serif; font-size: 22px; color: #888; letter-spacing: 3px; margin-bottom: 15px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .counter-display span { color: var(--geng-gold); font-size: 28px; font-weight: 600; text-shadow: 0 0 10px var(--geng-glow); }
+
+        .btn-group { display: flex; gap: 20px; width: 100%; justify-content: center; }
+
+        .btn-sub {
+            flex: 1; max-width: 200px;
+            background: transparent; border: 1px solid #333; color: #666; padding: 15px 0;
+            font-family: 'Oswald', sans-serif; font-size: 14px; letter-spacing: 2px; cursor: pointer; transition: 0.2s;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            text-align: center;
+        }
+        .btn-sub:hover { border-color: #666; color: #fff; }
+
+        .shuffle-btn {
+            flex: 2; max-width: 400px;
+            background: var(--geng-gold); color: #000; border: none; padding: 15px 0;
+            font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 4px;
+            cursor: pointer; transition: 0.2s;
+            clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+            text-align: center;
+        }
+        .shuffle-btn:hover { background: #fff; box-shadow: 0 0 25px var(--geng-gold); transform: scale(1.02); }
+
+        /* 🟡 [기능 추가] 뒤로가기 버튼 */
+        .home-btn-text { 
+            background: transparent; color: #666; border: none; cursor: pointer; 
+            font-family: 'Noto Sans KR', sans-serif; font-weight: 700; 
+            margin-top: 30px; font-size: 1rem; text-decoration: underline; 
+            transition: 0.2s; align-self: center; 
+        }
+        .home-btn-text:hover { color: var(--geng-gold); }
+
+        /* 📱 [기능 추가] 모바일 반응형 구현 */
+        @media (max-width: 768px) {
+            .tactical-board { padding: 30px 15px; clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px)); }
+            .header { align-items: center; margin-bottom: 25px; }
+            .header-left h1 { font-size: 24px; letter-spacing: 2px; }
+            .header-left p { font-size: 14px; }
+            .header-right img { width: 40px; }
+            
+            .team-header { padding: 0 10px; margin-bottom: 10px; }
+            .team-title { font-size: 16px; letter-spacing: 2px; }
+            
+            .tier-row { padding: 10px 5px; gap: 5px; }
+            .tier-label { font-size: 18px; width: 25px; }
+            input { width: 35%; font-size: 14px; padding: 0 5px; clip-path: none; border-radius: 5px; }
+            
+            .lock-btn-geng { width: 30px; height: 30px; }
+            
+            .action-area { margin-top: 25px; }
+            .btn-group { flex-direction: column; gap: 10px; align-items: center; }
+            .btn-sub, .shuffle-btn { width: 100%; max-width: 100%; clip-path: none; border-radius: 5px; }
+            .shuffle-btn { font-size: 18px; padding: 12px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="tactical-board">
+    <div class="header">
+        <div class="header-left">
+            <h1>GEN.G <span>No.2</span> ESCA</h1>
+            <p>티어 밸런스 // 킬내기 스쿼드</p>
+        </div>
+        <div class="header-right">
+            <img src="https://i.namu.wiki/i/4d50tCz7hKDoXDpP6xwJb3c8kjZDaWLPsHoS63XGnLnA21j6O9s90k2c92vlBBcQcteej1c5e6uQQGi-rj2_yA.svg" alt="GEN.G">
+        </div>
+    </div>
+
+    <div class="team-header">
+        <div class="team-title">킬내기 1팀</div>
+        <div class="team-title">킬내기 2팀</div>
+    </div>
+
+    <div class="tier-row" id="row1">
+        <div class="tier-label">T1</div>
+        <input type="text" id="t1a" placeholder="OPERATOR">
+        
+        <button class="lock-btn-geng" onclick="toggleLock(this)" title="클릭 시 자리 고정">
+            <img src="https://i.namu.wiki/i/4d50tCz7hKDoXDpP6xwJb3c8kjZDaWLPsHoS63XGnLnA21j6O9s90k2c92vlBBcQcteej1c5e6uQQGi-rj2_yA.svg" alt="Lock">
+        </button>
+
+        <input type="text" id="t1b" placeholder="OPERATOR">
+    </div>
+    <div class="tier-row" id="row2">
+        <div class="tier-label">T2</div>
+        <input type="text" id="t2a" placeholder="OPERATOR">
+        
+        <button class="lock-btn-geng" onclick="toggleLock(this)" title="클릭 시 자리 고정">
+            <img src="https://i.namu.wiki/i/4d50tCz7hKDoXDpP6xwJb3c8kjZDaWLPsHoS63XGnLnA21j6O9s90k2c92vlBBcQcteej1c5e6uQQGi-rj2_yA.svg" alt="Lock">
+        </button>
+
+        <input type="text" id="t2b" placeholder="OPERATOR">
+    </div>
+    <div class="tier-row" id="row3">
+        <div class="tier-label">T3</div>
+        <input type="text" id="t3a" placeholder="OPERATOR">
+        
+        <button class="lock-btn-geng" onclick="toggleLock(this)" title="클릭 시 자리 고정">
+            <img src="https://i.namu.wiki/i/4d50tCz7hKDoXDpP6xwJb3c8kjZDaWLPsHoS63XGnLnA21j6O9s90k2c92vlBBcQcteej1c5e6uQQGi-rj2_yA.svg" alt="Lock">
+        </button>
+
+        <input type="text" id="t3b" placeholder="OPERATOR">
+    </div>
+    <div class="tier-row" id="row4">
+        <div class="tier-label">T4</div>
+        <input type="text" id="t4a" placeholder="OPERATOR">
+        
+        <button class="lock-btn-geng" onclick="toggleLock(this)" title="클릭 시 자리 고정">
+            <img src="https://i.namu.wiki/i/4d50tCz7hKDoXDpP6xwJb3c8kjZDaWLPsHoS63XGnLnA21j6O9s90k2c92vlBBcQcteej1c5e6uQQGi-rj2_yA.svg" alt="Lock">
+        </button>
+
+        <input type="text" id="t4b" placeholder="OPERATOR">
+    </div>
+
+    <div class="action-area">
+        <div class="counter-display">
+            재배치 순서 : <span id="syncCount">00</span>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-sub" onclick="resetData()">시스템 초기화</button>
+            <button class="shuffle-btn" onclick="executeShuffle()">실행</button>
+            <button class="btn-sub" style="color: var(--geng-gold); border-color: var(--geng-gold);" onclick="copyData()">데이터 복사</button>
+        </div>
+    </div>
+
+    <button class="home-btn-text" onclick="location.href='team.html'">← 로비로 돌아가기</button>
+</div>
+
+<script>
+    let shuffleCount = 0;
+
+    // 자리 고정 토글 함수
+    function toggleLock(btn) {
+        btn.classList.toggle('active');
+        btn.parentElement.classList.toggle('locked-row');
+    }
+
+    function executeShuffle() {
+        shuffleCount++;
+        document.getElementById('syncCount').innerText = shuffleCount < 10 ? '0' + shuffleCount : shuffleCount;
+
+        for (let i = 1; i <= 4; i++) {
+            let row = document.getElementById(`row${i}`);
+            let lockBtn = row.querySelector('.lock-btn-geng');
+            
+            // 고정(Lock)되지 않은 줄만 셔플
+            if (!lockBtn.classList.contains('active')) {
+                let a = document.getElementById(`t${i}a`);
+                let b = document.getElementById(`t${i}b`);
+                
+                if (Math.random() > 0.5) {
+                    let temp = a.value;
+                    a.value = b.value;
+                    b.value = temp;
+                }
+            }
+
+            // 번쩍임 효과
+            row.classList.add('flash');
+            setTimeout(() => {
+                row.classList.remove('flash');
+            }, 150);
+        }
+    }
+
+    function resetData() {
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById(`t${i}a`).value = '';
+            document.getElementById(`t${i}b`).value = '';
+            
+            // 고정 상태도 초기화
+            let row = document.getElementById(`row${i}`);
+            let lockBtn = row.querySelector('.lock-btn-geng');
+            lockBtn.classList.remove('active');
+            row.classList.remove('locked-row');
+        }
+        shuffleCount = 0;
+        document.getElementById('syncCount').innerText = '00';
+    }
+
+    function copyData() {
+        let result = "[ SQUAD ALPHA ]\n";
+        for(let i=1; i <= 4; i++) result += `T${i}: ${document.getElementById(`t${i}a`).value || '대기'}\n`;
+        
+        result += "\n[ SQUAD BRAVO ]\n";
+        for(let i=1; i <= 4; i++) result += `T${i}: ${document.getElementById(`t${i}b`).value || '대기'}\n`;
+        
+        navigator.clipboard.writeText(result);
+        alert("라인업 데이터가 복사되었습니다.");
+    }
+</script>
+
+</body>
+</html>

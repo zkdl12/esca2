@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>esca2.xyz - 오버워치</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Teko:wght@400;600&family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --lh-navy: #0a1128;
+            --lh-blue: #4a90e2; 
+            --lh-glow: rgba(74, 144, 226, 0.6);
+            --lh-white: #e6f0fa;
+            --lh-red: #ff4d4d; /* 에러 메시지용 */
+            --bg-dark: #02050f;
+            --panel-bg: rgba(5, 10, 25, 0.9);
+            --exclude-gray: #1a1e2b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        body { background-color: var(--bg-dark); font-family: 'Noto Sans KR', sans-serif; color: #fff; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; background-image: linear-gradient(var(--lh-glow) 1px, transparent 1px), linear-gradient(90deg, var(--lh-glow) 1px, transparent 1px); background-size: 50px 50px; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, transparent 10%, var(--bg-dark) 85%); pointer-events: none; z-index: -1; }
+
+        .tactical-board { width: 100%; max-width: 950px; background: var(--panel-bg); border: 1px solid #1a2b5e; padding: 30px 40px; position: relative; z-index: 10; backdrop-filter: blur(8px); clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px)); box-shadow: 0 0 40px rgba(0, 50, 100, 0.9); display: flex; flex-direction: column; align-items: center; }
+        .tactical-board::before { content: ''; position: absolute; top: 0; left: 0; width: 30%; height: 4px; background: var(--lh-white); }
+        .tactical-board::after { content: ''; position: absolute; bottom: 0; right: 0; width: 30%; height: 4px; background: var(--lh-blue); }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; border-bottom: 1px solid #1a2b5e; padding-bottom: 15px; width: 100%; }
+        .header-left h1 { font-family: 'Oswald', sans-serif; font-size: 32px; letter-spacing: 5px; color: var(--lh-white); }
+        .header-left h1 span { color: var(--lh-blue); }
+        .header-right img { width: 65px; filter: drop-shadow(0 0 12px var(--lh-glow)); }
+
+        /* 🗺️ 맵 섹션 */
+        .map-section { width: 100%; border: 1px solid rgba(74, 144, 226, 0.4); border-radius: 10px; padding: 20px; margin-bottom: 30px; background: rgba(10, 17, 40, 0.6); }
+        .section-title { font-family: 'Noto Sans KR', sans-serif; font-size: 16px; font-weight: 700; color: var(--lh-blue); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .map-category-toggles { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .cat-toggle-btn { flex: 1; min-width: 80px; padding: 8px; border-radius: 5px; border: 1px solid var(--lh-blue); background: transparent; color: var(--lh-white); font-size: 13px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .cat-toggle-btn:hover { background: rgba(74, 144, 226, 0.2); }
+        .cat-toggle-btn.excluded { border-color: #333; color: #555; text-decoration: line-through; background: var(--exclude-gray); }
+
+        .map-groups-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-height: 250px; overflow-y: auto; padding-right: 10px; margin-bottom: 20px; }
+        .map-groups-container::-webkit-scrollbar { width: 6px; }
+        .map-groups-container::-webkit-scrollbar-thumb { background: var(--lh-blue); border-radius: 3px; }
+
+        .map-category { background: rgba(0, 0, 0, 0.3); border: 1px solid #1a2b5e; border-radius: 8px; padding: 12px; transition: 0.2s ease; }
+        .cat-title { display: flex; justify-content: space-between; color: var(--lh-blue); font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+        .cat-title span.count { color: #7a9ccc; font-weight: 300; }
+        
+        .map-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .map-btn { padding: 8px; border-radius: 5px; border: 1px solid rgba(74, 144, 226, 0.3); background: rgba(74, 144, 226, 0.1); color: var(--lh-white); font-size: 12px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .map-btn:hover { background: rgba(74, 144, 226, 0.3); }
+        .map-btn.excluded { border-color: #222; background: var(--exclude-gray); color: #555; text-decoration: line-through; }
+
+        .ready-status { text-align: center; border-top: 1px solid rgba(74, 144, 226, 0.2); padding-top: 15px; margin-bottom: 15px; color: #7a9ccc; font-family: 'Oswald', sans-serif; font-size: 20px; letter-spacing: 3px; font-weight: 700; }
+        .ready-status.selected { color: var(--lh-white); font-family: 'Noto Sans KR', sans-serif; font-size: 24px; text-shadow: 0 0 10px var(--lh-glow); }
+
+        .action-row { display: flex; gap: 10px; width: 100%; }
+        .action-btn { flex: 1; padding: 12px 0; border: 1px solid var(--lh-blue); border-radius: 5px; font-family: 'Noto Sans KR', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .btn-sub { background: transparent; color: var(--lh-white); }
+        .btn-sub:hover { background: rgba(74, 144, 226, 0.2); }
+        .btn-main { background: var(--lh-blue); color: #fff; }
+        .btn-main:hover { background: var(--lh-white); color: var(--lh-navy); box-shadow: 0 0 15px var(--lh-blue); }
+
+        /* 👥 팀 섹션 */
+        .team-section { width: 100%; border: 1px solid #1a2b5e; border-radius: 10px; padding: 20px; background: rgba(5, 10, 25, 0.6); }
+        
+        .player-selector { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .selector-btn { font-family: 'Oswald', sans-serif; font-size: 16px; padding: 6px 30px; border-radius: 5px; border: 1px solid #1a2b5e; background: #050a19; color: #7a9ccc; cursor: pointer; transition: 0.3s; }
+        .selector-btn.active, .selector-btn:hover { border: 1px solid var(--lh-white); background: var(--lh-white); color: #050a19; box-shadow: 0 0 10px var(--lh-white); }
+
+        .team-header { display: flex; justify-content: space-between; padding: 0 80px; margin-bottom: 10px; }
+        .team-title { font-family: 'Oswald', sans-serif; color: var(--lh-white); font-size: 18px; letter-spacing: 5px; text-shadow: 0 0 10px var(--lh-glow); }
+
+        .lineup-grid { margin-bottom: 20px; }
+        .lane-row { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg, rgba(74,144,226,0.1) 0%, transparent 20%, transparent 80%, rgba(74,144,226,0.1) 100%); border-top: 1px solid #111b3d; border-bottom: 1px solid #111b3d; margin-bottom: 6px; padding: 6px 20px; transition: 0.1s; position: relative; }
+        .flash { background: rgba(74, 144, 226, 0.5); border-color: var(--lh-white); }
+        .tier-label { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: var(--lh-blue); width: 60px; text-align: center; letter-spacing: 2px; }
+
+        input { width: 38%; height: 38px; background: rgba(0,0,0,0.6); border: 1px solid #1a2b5e; color: #fff; font-size: 14px; font-weight: 700; text-align: center; outline: none; transition: 0.3s; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+        input:focus { border-color: var(--lh-white); box-shadow: 0 0 15px var(--lh-glow); background: rgba(74, 144, 226, 0.1); }
+        
+        .lock-btn-lh { 
+            width: 40px; height: 40px; cursor: pointer; flex-shrink: 0; 
+            background-color: transparent; border: none; transition: 0.3s ease; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .lock-btn-lh img { 
+            width: 100%; height: 100%; object-fit: contain;
+            filter: grayscale(100%) opacity(0.3); transition: 0.3s; 
+        }
+        .lock-btn-lh:hover img { filter: grayscale(100%) opacity(0.6); }
+        .lock-btn-lh.active img { filter: grayscale(0%) opacity(1) drop-shadow(0 0 10px var(--lh-blue)); transform: scale(1.15); }
+
+        .lane-row.locked-row { border-color: var(--lh-blue); background: rgba(74, 144, 226, 0.15); }
+        .lane-row.locked-row .player-input { color: #555; border-color: #222; }
+
+        /* 🟢 [기능 추가] 뒤로가기 버튼 */
+        .home-btn-text { background: transparent; color: #666; border: none; cursor: pointer; font-weight: 700; margin-top: 30px; font-size: 1rem; text-decoration: underline; transition: 0.2s; align-self: center; }
+        .home-btn-text:hover { color: var(--lh-white); }
+
+        @media (max-width: 768px) {
+            .tactical-board { padding: 20px; }
+            .map-groups-container { grid-template-columns: 1fr; max-height: 350px; }
+            .team-header { padding: 0 20px; }
+            input { width: 35%; }
+            .action-row { gap: 5px; }
+            .action-btn { font-size: 13px; padding: 12px 5px; }
+            .tier-label { font-size: 12px; width: 45px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="tactical-board">
+    <div class="header">
+        <div class="header-left">
+            <h1>Lunatic-Hai  <span>ESCA</span></h1>
+            <p style="font-family: 'Teko'; color: #7a9ccc; letter-spacing: 3px;">팀 & 맵 랜덤 생성기</p>
+        </div>
+        <div class="header-right">
+            <img src="https://i.namu.wiki/i/JiMGMwrJZA9qtjBrXOQvC7iheLZGg0VlfuGRHLmFqWrP91Owi_qNPcEBoWyutpCx2RJ0piZprsjxOTQTSQ2aaQ.webp" alt="LUNATIC-HAI">
+        </div>
+    </div>
+
+    <div class="map-section">
+        <div class="section-title">맵 선택 (클릭하여 제외)</div>
+        
+        <div class="map-category-toggles" id="mapCategoryToggles">
+            </div>
+
+        <div class="map-groups-container" id="mapGroupsContainer">
+            </div>
+
+        <div class="ready-status" id="mapReadyStatus">맵 배치 준비 중</div>
+        
+        <div class="action-row">
+            <button class="action-btn btn-sub" onclick="resetMaps()">🔄 맵 초기화</button>
+            <button class="action-btn btn-main" onclick="rollMap()">🗺️ 맵 무작위 선택</button>
+            <button class="action-btn btn-sub" onclick="copyMapData()">📋 맵 복사</button>
+        </div>
+    </div>
+
+    <div class="team-section">
+        <div class="player-selector">
+            <button class="selector-btn active" onclick="setPlayers(5)">5 : 5</button>
+            <button class="selector-btn" onclick="setPlayers(6)">6 : 6</button>
+        </div>
+
+        <div class="team-header">
+            <div class="team-title">TEAM BLUE</div>
+            <div class="team-title">TEAM WHITE</div>
+        </div>
+
+        <div class="lineup-grid" id="lineupGrid">
+            </div>
+
+        <div class="action-row">
+            <button class="action-btn btn-sub" onclick="resetTeam()">🔄 팀 초기화</button>
+            <button class="action-btn btn-main" onclick="shuffleTeam()">🪄 팀 섞기</button>
+            <button class="action-btn btn-sub" onclick="copyTeamData()">📋 팀 복사</button>
+        </div>
+    </div>
+
+    <button class="home-btn-text" onclick="location.href='team.html'">← 로비로 돌아가기</button>
+</div>
+
+<script>
+    const owMapsData = {
+        "쟁탈": ["네팔", "리장타워", "부산", "사모아", "오아시스", "일리오스", "남극반도"],
+        "호위": ["66번국도", "지브롤터", "도라도", "리알토", "샴발리 수도원", "서킷 로얄", "쓰레기촌", "하바나"],
+        "혼합": ["눔바니", "미드타운", "블리자드 월드", "아이헨발데", "왕의 길", "파라이수", "할리우드"],
+        "밀기": ["뉴 퀸 스트리트", "이스페란사", "콜로세오", "루나사피"],
+        "플래시포인트": ["뉴 정크 시티", "수라바사", "아틀라스"],
+        "점령": ["볼스카야", "아누비스 신전", "파리", "하나무라", "호라이즌 달 기지"]
+    };
+
+    const positionsData = {
+        5: ["TANK", "DPS 1", "DPS 2", "SUP 1", "SUP 2"],
+        6: ["TANK 1", "TANK 2", "DPS 1", "DPS 2", "SUP 1", "SUP 2"]
+    };
+
+    let currentPlayerNum = 5;
+
+    function init() {
+        renderMapUI();
+        renderLanes(currentPlayerNum);
+    }
+
+    /* ====== 맵 시스템 ====== */
+    function renderMapUI() {
+        const toggleContainer = document.getElementById('mapCategoryToggles');
+        const gridContainer = document.getElementById('mapGroupsContainer');
+        toggleContainer.innerHTML = '';
+        gridContainer.innerHTML = '';
+
+        for (const [category, maps] of Object.entries(owMapsData)) {
+            // 상단 카테고리 버튼
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'cat-toggle-btn';
+            toggleBtn.id = `toggle-${category}`;
+            toggleBtn.innerText = category;
+            toggleBtn.onclick = () => toggleCategory(category);
+            toggleContainer.appendChild(toggleBtn);
+
+            // 하단 맵 그룹 박스
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'map-category';
+            groupDiv.id = `cat-group-${category}`;
+            groupDiv.innerHTML = `
+                <div class="cat-title">
+                    ${category} <span class="count">${maps.length}개</span>
+                </div>
+            `;
+            
+            const mapGrid = document.createElement('div');
+            mapGrid.className = 'map-grid';
+            
+            maps.forEach(mapName => {
+                const mapBtn = document.createElement('button');
+                mapBtn.className = 'map-btn';
+                mapBtn.innerText = mapName;
+                mapBtn.setAttribute('data-map', mapName);
+                mapBtn.onclick = function() { toggleSingleMap(this); };
+                mapGrid.appendChild(mapBtn);
+            });
+            
+            groupDiv.appendChild(mapGrid);
+            gridContainer.appendChild(groupDiv);
+        }
+    }
+
+    // 개별 맵 끄기/켜기 (취소선)
+    function toggleSingleMap(btn) {
+        btn.classList.toggle('excluded');
+    }
+
+    // 🟢 [수정됨] 카테고리 누르면 박스 통째로 숨김/표시
+    function toggleCategory(category) {
+        const toggleBtn = document.getElementById(`toggle-${category}`);
+        const groupDiv = document.getElementById(`cat-group-${category}`);
+        
+        const isHidden = toggleBtn.classList.toggle('excluded');
+        
+        if (isHidden) {
+            groupDiv.style.display = 'none'; // 박스 통째로 안보이게
+        } else {
+            groupDiv.style.display = 'block'; // 박스 다시 보이게
+        }
+    }
+
+    // 🟢 [수정됨] 맵 뽑기 (숨겨진 박스는 제외, 제외된 맵도 제외)
+    function rollMap() {
+        let activeMapBtns = [];
+        
+        // 숨겨지지 않은 카테고리 안에서만
+        document.querySelectorAll('.map-category').forEach(group => {
+            if (group.style.display !== 'none') {
+                // 그 안에서 취소선 안 그어진 버튼만 수집
+                group.querySelectorAll('.map-btn:not(.excluded)').forEach(btn => {
+                    activeMapBtns.push(btn);
+                });
+            }
+        });
+
+        const mapEl = document.getElementById('mapReadyStatus');
+
+        if (activeMapBtns.length === 0) {
+            mapEl.innerText = "❌ 활성화된 맵이 없습니다!";
+            mapEl.style.color = "var(--lh-red)";
+            mapEl.classList.remove('selected');
+            return;
+        }
+
+        const availableMaps = activeMapBtns.map(btn => btn.getAttribute('data-map'));
+        
+        let rollCount = 0;
+        let rollInterval = setInterval(() => {
+            mapEl.innerText = availableMaps[Math.floor(Math.random() * availableMaps.length)];
+            mapEl.classList.remove('selected');
+            mapEl.style.color = "var(--lh-blue)";
+            rollCount++;
+            if(rollCount > 12) {
+                clearInterval(rollInterval);
+                mapEl.classList.add('selected');
+            }
+        }, 50);
+    }
+
+    // 맵 초기화
+    function resetMaps() {
+        // 모든 맵 취소선 해제
+        document.querySelectorAll('.map-btn.excluded').forEach(el => el.classList.remove('excluded'));
+        // 상단 카테고리 버튼 취소선 해제
+        document.querySelectorAll('.cat-toggle-btn.excluded').forEach(el => el.classList.remove('excluded'));
+        // 모든 맵 박스 다시 보이게
+        document.querySelectorAll('.map-category').forEach(el => el.style.display = 'block');
+        
+        const mapEl = document.getElementById('mapReadyStatus');
+        mapEl.innerText = 'STANDBY FOR MAP DEPLOYMENT';
+        mapEl.classList.remove('selected');
+        mapEl.style.color = "#7a9ccc";
+    }
+
+    function copyMapData() {
+        const map = document.getElementById('mapReadyStatus').innerText;
+        if(map === 'STANDBY FOR MAP DEPLOYMENT' || map.includes('❌')) {
+            alert("먼저 맵 무작위 선택을 돌려주세요!");
+            return;
+        }
+        navigator.clipboard.writeText(`▶ 결정된 전장: [ ${map} ]`);
+        alert(`전장(${map})이 복사되었습니다.`);
+    }
+
+    /* ====== 팀 시스템 ====== */
+    function setPlayers(num) {
+        currentPlayerNum = num;
+        document.querySelectorAll('.selector-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        renderLanes(num);
+    }
+
+    function renderLanes(numPlayers) {
+        const lineupGrid = document.getElementById('lineupGrid');
+        lineupGrid.innerHTML = '';
+        const positions = positionsData[numPlayers];
+
+        for (let i = 0; i < numPlayers; i++) {
+            const laneRow = document.createElement('div');
+            laneRow.className = 'lane-row';
+            laneRow.innerHTML = `
+                <div class="tier-label">${positions[i]}</div>
+                <input type="text" id="t${i}a" placeholder="블루 ${i+1}">
+                
+                <button class="lock-btn-lh" onclick="toggleLock(this)" title="클릭 시 자리 고정">
+                    <img src="https://i.namu.wiki/i/JiMGMwrJZA9qtjBrXOQvC7iheLZGg0VlfuGRHLmFqWrP91Owi_qNPcEBoWyutpCx2RJ0piZprsjxOTQTSQ2aaQ.webp" alt="Lock">
+                </button>
+                
+                <input type="text" id="t${i}b" placeholder="화이트 ${i+1}">
+            `;
+            lineupGrid.appendChild(laneRow);
+        }
+    }
+
+    function toggleLock(btn) {
+        btn.classList.toggle('active');
+        btn.parentElement.classList.toggle('locked-row');
+    }
+
+    function shuffleTeam() {
+        const rows = document.querySelectorAll('.lane-row');
+        rows.forEach((row, i) => {
+            const lockBtn = row.querySelector('.lock-btn-lh');
+            if (!lockBtn.classList.contains('active')) {
+                const aInput = document.getElementById(`t${i}a`);
+                const bInput = document.getElementById(`t${i}b`);
+                if (Math.random() > 0.5) {
+                    const temp = aInput.value;
+                    aInput.value = bInput.value;
+                    bInput.value = temp;
+                }
+            }
+            row.classList.add('flash');
+            setTimeout(() => row.classList.remove('flash'), 150);
+        });
+    }
+
+    function resetTeam() {
+        document.querySelectorAll('input').forEach(input => input.value = '');
+        document.querySelectorAll('.lock-btn-lh').forEach(btn => {
+            btn.classList.remove('active');
+            btn.parentElement.classList.remove('locked-row');
+        });
+    }
+
+    function copyTeamData() {
+        let result = `[ 팀 라인업 ]\n\n[ 블루팀 ]\n`;
+        const positions = positionsData[currentPlayerNum];
+        for(let i=0; i < currentPlayerNum; i++) {
+            result += `${positions[i]}: ${document.getElementById(`t${i}a`).value || '-'}\n`;
+        }
+        result += "\n[ 화이트팀 ]\n";
+        for(let i=0; i < currentPlayerNum; i++) {
+            result += `${positions[i]}: ${document.getElementById(`t${i}b`).value || '-'}\n`;
+        }
+        navigator.clipboard.writeText(result);
+        alert("팀 라인업이 복사되었습니다.");
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
