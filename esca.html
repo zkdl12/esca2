@@ -9,7 +9,7 @@
         :root {
             --neon-cyan: #00e5ff;
             --neon-red: #ff3366;
-            --neon-orange: #ffaa00; /* 방어구 깨질 때 컬러 */
+            --neon-orange: #ffaa00;
             --dark-bg: #03050a;
             --ui-gray: #1a1f2b;
         }
@@ -69,17 +69,27 @@
         .header h1 span { color: var(--neon-red); }
         .header p { font-size: 16px; color: var(--neon-cyan); letter-spacing: 3px; font-weight: 700; }
 
-        /* 🎛️ 컨트롤 패널 */
         .admin-panel {
             display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 700px;
             background: rgba(10, 15, 25, 0.8); border: 1px solid rgba(0, 229, 255, 0.3);
             padding: 20px; border-radius: 10px; margin-bottom: 20px; backdrop-filter: blur(5px);
         }
 
-        /* 🛡️ 조끼(HP) 선택 토글 */
-        .armor-select {
-            display: flex; gap: 10px; width: 100%; margin-bottom: 5px;
+        /* 상단 유틸리티 버튼 스타일 */
+        .panel-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
         }
+        .util-btn {
+            background: transparent; border: 1px solid #444; color: #888;
+            font-size: 12px; font-weight: 700; padding: 5px 12px; cursor: pointer;
+            transition: 0.2s; letter-spacing: 1px;
+        }
+        .util-btn:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+
+        .armor-select { display: flex; gap: 10px; width: 100%; margin-bottom: 5px; }
         .armor-btn {
             flex: 1; background: rgba(255,255,255,0.05); border: 1px solid #444; color: #888;
             font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 700;
@@ -92,16 +102,16 @@
 
         .input-group { display: flex; gap: 10px; width: 100%; }
         input {
-            flex: 1; background: #050811; border: 1px solid #333; color: var(--neon-cyan);
+            flex: 2; background: #050811; border: 1px solid #333; color: var(--neon-cyan);
             font-family: 'Noto Sans KR', sans-serif; font-size: 15px; font-weight: 700;
             padding: 12px 15px; outline: none; transition: 0.3s; text-align: center;
         }
         input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
 
         button.btn-tactical {
-            background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan);
+            flex: 1; background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan);
             font-family: 'Noto Sans KR', sans-serif; font-size: 15px; font-weight: 700;
-            letter-spacing: 2px; padding: 0 25px; cursor: pointer; transition: 0.3s;
+            letter-spacing: 2px; padding: 12px; cursor: pointer; transition: 0.3s;
         }
         button.btn-tactical:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
 
@@ -114,83 +124,29 @@
             box-shadow: inset 0 0 15px var(--neon-red), 0 0 20px rgba(255, 51, 102, 0.4);
         }
 
-        /* 🎯 게임 영역 */
-        .game-area {
-            display: flex; gap: 30px; width: 100%; justify-content: center; align-items: flex-start;
-        }
-        .canvas-wrapper {
-            position: relative; width: 100%; max-width: 550px; aspect-ratio: 1 / 1;
-            display: flex; justify-content: center; align-items: center;
-        }
-        #rouletteCanvas {
-            width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); 
-        }
+        .game-area { display: flex; gap: 30px; width: 100%; justify-content: center; align-items: flex-start; }
+        .canvas-wrapper { position: relative; width: 100%; max-width: 550px; aspect-ratio: 1 / 1; display: flex; justify-content: center; align-items: center; }
+        #rouletteCanvas { width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
 
-        /* 💀 순위표 */
-        .ranking-board {
-            width: 300px; background: rgba(20, 5, 10, 0.8); border: 1px solid var(--neon-red);
-            padding: 20px; border-radius: 10px; display: none; box-shadow: 0 0 20px rgba(255, 51, 102, 0.1);
-        }
-        .ranking-title {
-            font-size: 18px; font-weight: 900; color: var(--neon-red); text-align: center;
-            margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed var(--neon-red); letter-spacing: 2px;
-        }
-        .ranking-list {
-            list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto;
-        }
-        .ranking-list::-webkit-scrollbar { width: 5px; }
-        .ranking-list::-webkit-scrollbar-thumb { background: var(--neon-red); border-radius: 5px; }
-
-        .ranking-list li {
-            background: rgba(255, 51, 102, 0.1); border-left: 3px solid var(--neon-red);
-            padding: 10px; font-size: 15px; font-weight: 700; color: #ddd;
-            display: flex; justify-content: space-between; animation: slideIn 0.3s ease-out forwards;
-        }
+        .ranking-board { width: 300px; background: rgba(20, 5, 10, 0.8); border: 1px solid var(--neon-red); padding: 20px; border-radius: 10px; display: none; box-shadow: 0 0 20px rgba(255, 51, 102, 0.1); }
+        .ranking-title { font-size: 18px; font-weight: 900; color: var(--neon-red); text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed var(--neon-red); letter-spacing: 2px; }
+        .ranking-list { list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; }
+        .ranking-list li { background: rgba(255, 51, 102, 0.1); border-left: 3px solid var(--neon-red); padding: 10px; font-size: 15px; font-weight: 700; color: #ddd; display: flex; justify-content: space-between; animation: slideIn 0.3s ease-out forwards; }
         .ranking-list li .rank-num { color: var(--neon-red); }
-
-        .survivor {
-            margin-top: 15px; padding: 15px; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan); text-align: center; font-weight: 900; font-size: 18px; animation: pulse 1s infinite alternate;
-        }
+        .survivor { margin-top: 15px; padding: 15px; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); text-align: center; font-weight: 900; font-size: 18px; animation: pulse 1s infinite alternate; }
 
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes pulse { from { box-shadow: 0 0 10px rgba(0,229,255,0.2); } to { box-shadow: 0 0 20px rgba(0,229,255,0.6); } }
 
-        .back-btn {
-            background: transparent; border: none; color: #777; font-family: 'Noto Sans KR', sans-serif;
-            font-size: 15px; font-weight: 700; letter-spacing: 2px; margin-top: 30px; cursor: pointer;
-            text-decoration: underline; text-underline-offset: 4px; transition: 0.2s;
-        }
-        .back-btn:hover { color: var(--neon-cyan); }
-
-        /* 🚨 커스텀 알럿 🚨 */
-        .custom-alert-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85);
-            z-index: 1000; display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px);
-        }
+        /* 🚨 커스텀 알럿 */
+        .custom-alert-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px); }
         .custom-alert-overlay.show { opacity: 1; pointer-events: auto; }
-        .alert-box {
-            background: rgba(10, 15, 25, 0.95); border: 1px solid var(--neon-red); padding: 30px 40px; text-align: center;
-            box-shadow: 0 0 30px rgba(255, 51, 102, 0.3); border-radius: 5px;
-            transform: scale(0.9); transition: 0.3s; min-width: 350px;
-        }
+        .alert-box { background: rgba(10, 15, 25, 0.95); border: 1px solid var(--neon-red); padding: 30px 40px; text-align: center; box-shadow: 0 0 30px rgba(255, 51, 102, 0.3); border-radius: 5px; transform: scale(0.9); transition: 0.3s; min-width: 350px; }
         .custom-alert-overlay.show .alert-box { transform: scale(1); }
-        .alert-title { 
-            font-family: 'Oswald', sans-serif; color: var(--neon-red); font-size: 26px; letter-spacing: 3px; 
-            margin-bottom: 15px; border-bottom: 1px solid var(--neon-red); padding-bottom: 10px; 
-        }
+        .alert-title { font-family: 'Oswald', sans-serif; color: var(--neon-red); font-size: 26px; letter-spacing: 3px; margin-bottom: 15px; border-bottom: 1px solid var(--neon-red); padding-bottom: 10px; }
         .alert-msg { font-size: 17px; color: #fff; margin-bottom: 25px; font-weight: 500; line-height: 1.5; }
-        .alert-btn { background: rgba(255, 51, 102, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 10px 30px; font-size: 16px; }
-        .alert-btn:hover { background: var(--neon-red); color: #fff; box-shadow: 0 0 15px rgba(255, 51, 102, 0.5); }
-        .alert-box.info-mode { border-color: var(--neon-cyan); box-shadow: 0 0 30px rgba(0, 229, 255, 0.3); }
-        .alert-box.info-mode .alert-title { color: var(--neon-cyan); border-bottom-color: var(--neon-cyan); }
-        .alert-box.info-mode .alert-btn { background: rgba(0, 229, 255, 0.1); border-color: var(--neon-cyan); color: var(--neon-cyan); }
-        .alert-box.info-mode .alert-btn:hover { background: var(--neon-cyan); color: #000; }
 
-        @media (max-width: 768px) {
-            .header h1 { font-size: 35px; } .input-group { flex-direction: column; } .game-area { flex-direction: column; align-items: center; }
-        }
+        @media (max-width: 768px) { .header h1 { font-size: 35px; } .input-group { flex-direction: column; } .game-area { flex-direction: column; align-items: center; } }
     </style>
 </head>
 <body>
@@ -202,9 +158,14 @@
         </div>
         
         <div class="admin-panel">
+            <div class="panel-top-row">
+                <button class="util-btn" onclick="location.href='main.html'">← 메인페이지</button>
+                <button class="util-btn" onclick="resetAll()">시스템 초기화</button>
+            </div>
+
             <div class="armor-select">
-                <button class="armor-btn active" id="armor1" onclick="setArmor(1)">1레벨 조끼 </button>
-                <button class="armor-btn" id="armor2" onclick="setArmor(2)">2레벨 조끼 </button>
+                <button class="armor-btn active" id="armor1" onclick="setArmor(1)">1레벨 조끼 (1 HP)</button>
+                <button class="armor-btn" id="armor2" onclick="setArmor(2)">2레벨 조끼 (2 HP)</button>
             </div>
 
             <div class="input-group">
@@ -225,8 +186,6 @@
                 <div id="survivorBox"></div>
             </div>
         </div>
-
-        <button class="back-btn" onclick="location.href='index.html'">← 메인으로 돌아가기</button>
     </div>
 
     <div id="customAlert" class="custom-alert-overlay">
@@ -250,11 +209,8 @@
         let isFired = false;
         let currentWinner = null;
         let animationFrameId;
-        
         let gunType = 0; 
         let radarAngle = 0;
-        
-        // 조끼 설정 (1 or 2)
         let selectedArmor = 1;
 
         function setArmor(level) {
@@ -269,20 +225,35 @@
             const alertBox = document.getElementById('alertBox');
             const title = document.getElementById('alertTitle');
             const msgBox = document.getElementById('alertMsg');
-
             msgBox.innerHTML = msg;
             if (type === 'error') {
                 alertBox.classList.remove('info-mode');
                 title.innerText = 'SYSTEM WARNING';
+                title.style.color = 'var(--neon-red)';
             } else {
                 alertBox.classList.add('info-mode');
                 title.innerText = 'SYSTEM INFO';
+                title.style.color = 'var(--neon-cyan)';
             }
             overlay.classList.add('show');
         }
 
-        function closeAlert() {
-            document.getElementById('customAlert').classList.remove('show');
+        function closeAlert() { document.getElementById('customAlert').classList.remove('show'); }
+
+        function resetAll() {
+            document.getElementById('namesInput').value = '';
+            players = [];
+            deadCount = 0;
+            particles = [];
+            isSpinning = false;
+            isFired = false;
+            document.getElementById('rankingBoard').style.display = 'none';
+            document.getElementById('rankingList').innerHTML = '';
+            document.getElementById('survivorBox').innerHTML = '';
+            document.getElementById('fireBtn').style.display = 'none';
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            showCustomAlert("시스템이 초기화되었습니다.", 'info');
         }
 
         class Player {
@@ -293,302 +264,158 @@
                 this.radius = 280; 
                 this.x = 400 + Math.cos(this.angle) * this.radius;
                 this.y = 400 + Math.sin(this.angle) * this.radius;
-                
-                // HP 시스템 추가
                 this.maxHp = maxHp;
                 this.hp = maxHp;
                 this.isDead = false;
-                this.justHit = false; // 맞았을 때 번쩍임 효과용
+                this.justHit = false;
             }
-
             draw() {
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.angle + Math.PI/2); 
-
-                // 텍스트 & 색상 처리
                 if (this.justHit && this.hp > 0) {
-                    // 장갑 깨짐 (주황색)
-                    ctx.fillStyle = 'var(--neon-orange)';
-                    ctx.shadowColor = 'var(--neon-orange)';
-                    ctx.shadowBlur = 20;
-                    ctx.font = '900 24px Noto Sans KR';
+                    ctx.fillStyle = 'var(--neon-orange)'; ctx.shadowColor = 'var(--neon-orange)'; ctx.shadowBlur = 20; ctx.font = '900 24px Noto Sans KR';
                 } else if (this.justHit && this.hp === 0) {
-                    // 완전 사망 (빨간색)
-                    ctx.fillStyle = 'var(--neon-red)';
-                    ctx.shadowColor = 'var(--neon-red)';
-                    ctx.shadowBlur = 20;
-                    ctx.font = '900 24px Noto Sans KR';
+                    ctx.fillStyle = 'var(--neon-red)'; ctx.shadowColor = 'var(--neon-red)'; ctx.shadowBlur = 20; ctx.font = '900 24px Noto Sans KR';
                 } else if (this.isDead) {
-                    // 시체 (회색)
-                    ctx.fillStyle = '#444';
-                    ctx.shadowBlur = 0;
-                    ctx.font = '500 20px Noto Sans KR';
+                    ctx.fillStyle = '#444'; ctx.shadowBlur = 0; ctx.font = '500 20px Noto Sans KR';
                 } else {
-                    // 살아있음 (파란색)
-                    ctx.fillStyle = '#00e5ff';
-                    ctx.shadowColor = 'rgba(0, 229, 255, 0.5)';
-                    ctx.shadowBlur = 10;
-                    ctx.font = '700 22px Noto Sans KR';
+                    ctx.fillStyle = '#00e5ff'; ctx.shadowColor = 'rgba(0, 229, 255, 0.5)'; ctx.shadowBlur = 10; ctx.font = '700 22px Noto Sans KR';
                 }
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(this.isDead && !this.justHit ? `[ ❌ ${this.name} ]` : `[ ${this.name} ]`, 0, 0);
 
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                if (this.isDead && !this.justHit) {
-                    ctx.fillText(`[ ❌ ${this.name} ]`, 0, 0);
-                } else {
-                    ctx.fillText(`[ ${this.name} ]`, 0, 0);
-                }
-
-                // 🛡️ HP 바 렌더링 (이름 아래에)
-                let boxW = 15;
-                let boxH = 6;
-                let gap = 5;
+                let boxW = 15, boxH = 6, gap = 5;
                 let totalW = (this.maxHp * boxW) + ((this.maxHp - 1) * gap);
-                let startX = -totalW / 2;
-                let startY = 20; // 이름 아래 20px
-
+                let startX = -totalW / 2, startY = 20;
                 for(let i=0; i < this.maxHp; i++) {
-                    // 피통 색상 결정
-                    if (i < this.hp) {
-                        ctx.fillStyle = (this.hp === 1 && this.maxHp === 2) ? 'var(--neon-orange)' : '#00e5ff';
-                        ctx.shadowBlur = 10;
-                    } else {
-                        ctx.fillStyle = '#222'; // 깎인 피통
-                        ctx.shadowBlur = 0;
-                    }
+                    ctx.fillStyle = (i < this.hp) ? ((this.hp === 1 && this.maxHp === 2) ? 'var(--neon-orange)' : '#00e5ff') : '#222';
+                    ctx.shadowBlur = (i < this.hp) ? 10 : 0;
                     ctx.fillRect(startX + (i * (boxW + gap)), startY, boxW, boxH);
                 }
-
                 ctx.restore();
             }
         }
 
         class Particle {
             constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
+                this.x = x; this.y = y;
                 const a = Math.random() * Math.PI * 2;
                 const v = Math.random() * 8 + 2;
-                this.vx = Math.cos(a) * v;
-                this.vy = Math.sin(a) * v;
-                this.life = 1.0;
-                this.decay = Math.random() * 0.02 + 0.02;
-                this.color = color; // 오렌지 or 레드
+                this.vx = Math.cos(a) * v; this.vy = Math.sin(a) * v;
+                this.life = 1.0; this.decay = Math.random() * 0.02 + 0.02;
+                this.color = color;
             }
-            update() {
-                this.x += this.vx; this.y += this.vy; this.life -= this.decay;
-            }
-            draw() {
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, 4, 0, Math.PI*2); ctx.fill();
-                ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
-            }
+            update() { this.x += this.vx; this.y += this.vy; this.life -= this.decay; }
+            draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.shadowBlur = 10; ctx.shadowColor = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, 4, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1.0; ctx.shadowBlur = 0; }
         }
 
         function initGame() {
             const input = document.getElementById('namesInput').value;
             if(!input.trim()) return showCustomAlert("타겟 이름을 입력하십시오.<br>(쉼표로 구분)", 'error');
-            
             const names = input.split(',').map(n => n.trim()).filter(n => n);
             if(names.length < 2) return showCustomAlert("최소 2명 이상의 타겟이 필요합니다.", 'error');
 
-            // 플레이어 객체 생성 시 선택된 조끼 레벨(HP) 부여
             players = names.map((name, i) => new Player(name, i, names.length, selectedArmor));
-            
-            deadCount = 0;
-            particles = [];
-            isFired = false;
-            angle = 0;
-            radarAngle = 0;
-
+            deadCount = 0; particles = []; isFired = false; angle = 0; radarAngle = 0;
             gunType = Math.floor(Math.random() * 3);
-            
             document.getElementById('rankingBoard').style.display = 'block';
             document.getElementById('rankingList').innerHTML = '';
             document.getElementById('survivorBox').innerHTML = '';
             document.getElementById('fireBtn').style.display = 'block';
             document.getElementById('fireBtn').innerText = '격발 (발사)';
-            document.body.classList.remove('shake');
-            
+            document.getElementById('fireBtn').style.background = 'var(--neon-red)';
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             gameLoop();
         }
 
         function drawGun(rot) {
-            ctx.save();
-            ctx.translate(400, 400);
-            ctx.rotate(rot);
-
-            ctx.beginPath(); ctx.arc(0, 0, 40, 0, Math.PI * 2);
-            ctx.fillStyle = '#111'; ctx.strokeStyle = '#00e5ff';
-            ctx.lineWidth = 3; ctx.fill(); ctx.stroke();
-
+            ctx.save(); ctx.translate(400, 400); ctx.rotate(rot);
+            ctx.beginPath(); ctx.arc(0, 0, 40, 0, Math.PI * 2); ctx.fillStyle = '#111'; ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 3; ctx.fill(); ctx.stroke();
             ctx.fillStyle = '#222'; ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 2;
-
             if (gunType === 0) {
                 ctx.fillRect(0, -10, 100, 20); ctx.strokeRect(0, -10, 100, 20);
-                ctx.fillStyle = isSpinning ? '#ff3366' : '#00e5ff';
-                ctx.shadowBlur = 15; ctx.shadowColor = ctx.fillStyle;
-                ctx.fillRect(90, -8, 15, 16);
+                ctx.fillStyle = isSpinning ? '#ff3366' : '#00e5ff'; ctx.shadowBlur = 15; ctx.shadowColor = ctx.fillStyle; ctx.fillRect(90, -8, 15, 16);
             } else if (gunType === 1) {
-                ctx.fillRect(0, -18, 100, 10); ctx.strokeRect(0, -18, 100, 10);
-                ctx.fillRect(0, 8, 100, 10); ctx.strokeRect(0, 8, 100, 10);
-                ctx.fillStyle = isSpinning ? '#ff3366' : '#00e5ff';
-                ctx.shadowBlur = 15; ctx.shadowColor = ctx.fillStyle;
-                ctx.fillRect(90, -16, 15, 6); ctx.fillRect(90, 10, 15, 6);
+                ctx.fillRect(0, -18, 100, 10); ctx.strokeRect(0, -18, 100, 10); ctx.fillRect(0, 8, 100, 10); ctx.strokeRect(0, 8, 100, 10);
+                ctx.fillStyle = isSpinning ? '#ff3366' : '#00e5ff'; ctx.shadowBlur = 15; ctx.shadowColor = ctx.fillStyle; ctx.fillRect(90, -16, 15, 6); ctx.fillRect(90, 10, 15, 6);
             } else {
-                ctx.fillRect(0, -15, 80, 30); ctx.strokeRect(0, -15, 80, 30);
-                ctx.fillRect(60, -25, 50, 8); ctx.strokeRect(60, -25, 50, 8);
-                ctx.fillRect(60, 17, 50, 8); ctx.strokeRect(60, 17, 50, 8);
-                ctx.fillStyle = isSpinning ? '#ff3366' : '#00e5ff';
-                ctx.shadowBlur = 15; ctx.shadowColor = ctx.fillStyle;
-                ctx.fillRect(100, -23, 10, 4); ctx.fillRect(100, 19, 10, 4);
-                ctx.fillRect(70, -5, 15, 10); 
+                ctx.fillRect(0, -15, 80, 30); ctx.strokeRect(0, -15, 80, 30); ctx.fillRect(60, -25, 50, 8); ctx.strokeRect(60, -25, 50, 8); ctx.fillRect(60, 17, 50, 8); ctx.strokeRect(60, 17, 50, 8);
+                ctx.fillStyle = isSpinning ? '#ff3366' : '#00e5ff'; ctx.shadowBlur = 15; ctx.shadowColor = ctx.fillStyle; ctx.fillRect(100, -23, 10, 4); ctx.fillRect(100, 19, 10, 4); ctx.fillRect(70, -5, 15, 10); 
             }
             ctx.restore();
         }
 
         function startRoulette() {
             if (isSpinning) return;
-            
-            // 살아있는 사람 (HP > 0)
             let alivePlayers = players.filter(p => !p.isDead);
-            if (alivePlayers.length <= 1) {
-                return showCustomAlert("게임이 종료되었습니다.<br>타겟을 다시 장전하십시오.", 'info');
-            }
+            if (alivePlayers.length <= 1) return showCustomAlert("게임이 종료되었습니다.<br>타겟을 다시 장전하십시오.", 'info');
 
             players.forEach(p => p.justHit = false);
-            particles = [];
-            isFired = false;
-            isSpinning = true;
+            particles = []; isFired = false; isSpinning = true;
             document.body.classList.remove('shake');
-
-            const winnerIndex = Math.floor(Math.random() * alivePlayers.length);
-            currentWinner = alivePlayers[winnerIndex];
+            currentWinner = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
             targetAngle = currentWinner.angle;
-
             let spins = Math.PI * 2 * (Math.floor(Math.random() * 8) + 10); 
-            let startRotation = angle;
-            let duration = Math.random() * 2500 + 3000; 
-            let startTime = performance.now();
+            let startRotation = angle, duration = Math.random() * 2500 + 3000, startTime = performance.now();
 
             function animate(time) {
                 let progress = (time - startTime) / duration;
                 if (progress > 1) progress = 1;
-
-                let easeOut = 1 - Math.pow(1 - progress, 4);
-                angle = startRotation + (targetAngle + spins - startRotation) * easeOut;
-
-                if (progress < 1) {
-                    animationFrameId = requestAnimationFrame(animate);
-                } else {
-                    angle = targetAngle;
-                    isSpinning = false;
-                    fireLaser();
-                }
+                angle = startRotation + (targetAngle + spins - startRotation) * (1 - Math.pow(1 - progress, 4));
+                if (progress < 1) animationFrameId = requestAnimationFrame(animate);
+                else { angle = targetAngle; isSpinning = false; fireLaser(); }
             }
             animationFrameId = requestAnimationFrame(animate);
         }
 
         function fireLaser() {
-            isFired = true;
-            
-            // 🛡️ 피통(HP) 깎기 로직
-            currentWinner.hp -= 1;
-            currentWinner.justHit = true;
-            
-            // 흔들림 효과
+            isFired = true; currentWinner.hp -= 1; currentWinner.justHit = true;
             document.body.classList.add('shake');
             setTimeout(() => document.body.classList.remove('shake'), 300);
-
-            // 파티클 색상 (살았으면 주황색, 죽었으면 빨간색)
             let particleColor = (currentWinner.hp > 0) ? '#ffaa00' : '#ff3366';
-            for(let i=0; i<60; i++) {
-                particles.push(new Particle(currentWinner.x, currentWinner.y, particleColor));
-            }
+            for(let i=0; i<60; i++) particles.push(new Particle(currentWinner.x, currentWinner.y, particleColor));
 
-            // 사망 판정
             if (currentWinner.hp <= 0) {
-                currentWinner.isDead = true;
-                deadCount++;
-                
-                // 🎯 순위표 정방향 업데이트
-                const ul = document.getElementById('rankingList');
-                const li = document.createElement('li');
+                currentWinner.isDead = true; deadCount++;
+                const ul = document.getElementById('rankingList'), li = document.createElement('li');
                 li.innerHTML = `<span class="rank-num">${deadCount}번째 탈락</span> <span>${currentWinner.name}</span>`;
-                ul.appendChild(li); 
-                ul.scrollTop = ul.scrollHeight; // 스크롤 맨 아래로
+                ul.appendChild(li); ul.scrollTop = ul.scrollHeight;
             }
 
-            // 최후의 1인 체크
             let alivePlayers = players.filter(p => !p.isDead);
             if (alivePlayers.length === 1) {
                 setTimeout(() => {
-                    const survivorBox = document.getElementById('survivorBox');
-                    survivorBox.innerHTML = `<div class="survivor">👑 최후의 생존자 : ${alivePlayers[0].name}</div>`;
+                    document.getElementById('survivorBox').innerHTML = `<div class="survivor">👑 최후의 생존자 : ${alivePlayers[0].name}</div>`;
                     document.getElementById('fireBtn').innerText = '게임 종료';
                     document.getElementById('fireBtn').style.background = '#444';
-                    document.getElementById('fireBtn').style.borderColor = '#444';
-                    
                     showCustomAlert(`작전 종료!<br>최후의 생존자는 <b>[ ${alivePlayers[0].name} ]</b> 입니다.`, 'info');
-                }, 1500); // 파티클 좀 보고 뜨게 딜레이 줌
+                }, 1000);
             }
         }
 
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             radarAngle += 0.005;
-            ctx.save();
-            ctx.translate(400, 400);
-            ctx.rotate(radarAngle);
-            ctx.strokeStyle = 'rgba(0, 229, 255, 0.15)';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([15, 10]); 
-            
+            ctx.save(); ctx.translate(400, 400); ctx.rotate(radarAngle); ctx.strokeStyle = 'rgba(0, 229, 255, 0.15)'; ctx.lineWidth = 1.5; ctx.setLineDash([15, 10]); 
             ctx.beginPath(); ctx.arc(0, 0, 300, 0, Math.PI * 2); ctx.stroke();
-            ctx.beginPath(); ctx.arc(0, 0, 150, 0, Math.PI * 2); ctx.stroke();
-            ctx.restore();
+            ctx.beginPath(); ctx.arc(0, 0, 150, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
 
             players.forEach(p => p.draw());
             drawGun(angle);
 
             if (isFired && currentWinner && currentWinner.justHit) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(400 + Math.cos(angle)*100, 400 + Math.sin(angle)*100);
-                ctx.lineTo(currentWinner.x, currentWinner.y);
-                
-                // 레이저 색상도 살았으면 주황, 죽었으면 빨강
+                ctx.save(); ctx.beginPath();
+                ctx.moveTo(400 + Math.cos(angle)*100, 400 + Math.sin(angle)*100); ctx.lineTo(currentWinner.x, currentWinner.y);
                 let laserColor = (currentWinner.hp > 0) ? 'var(--neon-orange)' : 'var(--neon-red)';
-                ctx.strokeStyle = laserColor;
-                ctx.lineWidth = 8;
-                ctx.shadowBlur = 25;
-                ctx.shadowColor = laserColor;
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(400 + Math.cos(angle)*100, 400 + Math.sin(angle)*100);
-                ctx.lineTo(currentWinner.x, currentWinner.y);
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 3;
-                ctx.shadowBlur = 0;
-                ctx.stroke();
-                ctx.restore();
+                ctx.strokeStyle = laserColor; ctx.lineWidth = 8; ctx.shadowBlur = 25; ctx.shadowColor = laserColor; ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(400 + Math.cos(angle)*100, 400 + Math.sin(angle)*100); ctx.lineTo(currentWinner.x, currentWinner.y);
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.shadowBlur = 0; ctx.stroke(); ctx.restore();
             }
-
             for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.update();
-                p.draw();
+                let p = particles[i]; p.update(); p.draw();
                 if (p.life <= 0) particles.splice(i, 1);
             }
-
             animationFrameId = requestAnimationFrame(gameLoop);
         }
     </script>
